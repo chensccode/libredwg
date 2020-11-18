@@ -2436,7 +2436,7 @@ bit_TU_to_utf8_len (const BITCODE_TU restrict wstr, const int len)
   return str;
 }
 
-/** converts UTF-8 (dxf,json) to ASCII TV.
+/** converts UTF-8 (dxf,json) to ASCII TV, TODO codepage 30 only so far.
     Unquotes \" to ", \\ to \,
     undo json_cquote(), \uxxxx or other unicode => \U+XXXX.
     Returns NULL if not enough room in dest.
@@ -2534,6 +2534,23 @@ bit_utf8_to_TV (char *restrict dest, const unsigned char *restrict src,
           s++;
         }
       /* everything above 0xf0 exceeds ucs-2, 4-6 byte seqs */
+      else
+        {
+          if (dest+7 < endp)
+            {
+              BITCODE_RS wc = c;
+              *dest++ = '\\';
+              *dest++ = 'U';
+              *dest++ = '+';
+              *dest++ = heX (wc >> 12);
+              *dest++ = heX (wc >> 8);
+              *dest++ = heX (wc >> 4);
+              *dest++ = heX (wc);
+              s++;
+            }
+          else
+            return NULL;
+        }
     }
 
   if (dest >= endp)
