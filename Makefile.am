@@ -225,8 +225,13 @@ gcov: check
 	$(MAKE) -C src gcov
 	$(MAKE) -C programs gcov
 	$(MAKE) -C examples gcov
+cover: gcov
 	gcov2perl test/*/*.gcov src/*.gcov programs/*.gcov examples/*.gcov
 	cover -no-gcov
+codecov: check
+	sh -c 'bash <(curl -s https://codecov.io/bash) -X test -X bindings'
+coveralls: gcov
+	coveralls -e test -e bindings
 endif
 
 $(BUILT_SOURCES):
