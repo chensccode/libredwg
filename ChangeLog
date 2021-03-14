@@ -1,6 +1,323 @@
 Full history from the git log
 -----------------------------
 
+2021-03-16  Reini Urban  <rurban@cpan.org>
+
+	Release 0.12.4
+	See NEWS
+
+	gh: try codecov.io integration
+	coveralls.io is a bit too troublesome with our gcov files.
+
+2021-03-16  Reini Urban  <rurban@cpan.org>
+
+	indxf: improve fuzzer zero-termination
+	don't allow \n without \0 in DXF.
+	Fail earlier when the ASCII DXF buffer has none to avoid strtol overflows.
+	Fixes oss-fuzz issue 32022
+
+	Also clear errno before calling strtol.
+
+2021-03-16  Reini Urban  <rurban@cpan.org>
+
+	llvmfuzz_standalone: protect from illegal input args
+	accept only files.
+	ftell might return (long)-1, which will lead to an malloc error
+
+2021-03-14  Reini Urban  <rurban@cpan.org>
+
+	more bit_utf8_to_TV src overflow protections
+	commit 54fdafc75275f1848bcb4e79c0313b9a13a8b01b
+	introduced src overflow protection, but not really.
+	acctually check unprotected inc's.
+
+	Fixes oss-fuzz issue 32029
+
+2021-03-13  Reini Urban  <rurban@cpan.org>
+
+	decode preR13: fix overflow regressions
+	fuzzing only. crashes15 id 145
+
+2021-03-12  Reini Urban  <rurban@cpan.org>
+
+	encode: fix use-after-realloc in API_ADD_TABLE
+	There is a small window of opportunity to realloc the objs invalidating
+	ctrl.
+	Fixes oss-fuzz issue 31436.
+
+	decode: protect unsigned int overflow on wrong obj->size
+	only with fuzzed dwgs.
+
+	fixup llvmfuzz_standalone on non-linux
+	no weak linking on macOS nor Windows.
+	our mingw smokers have no sanitizers.
+
+	indxf: disable unused and leaking dxf_objs
+
+	add llvmfuzz_standalone for reproducers
+	esp. if we fixup missing zero-termination. yes, we do.
+	bogus oss-fuzz bug reports for 31419, et al
+
+2021-03-11  Reini Urban  <rurban@cpan.org>
+
+	indxf: pair -Wmaybe-uninitialized
+
+2021-03-10  Reini Urban  <rurban@cpan.org>
+
+	protect bit_utf8_to_TV src from overflow
+	fuzzing in_json only, everywhere else the src is big enough.
+	Fixes oss-fuzz issue 31878
+
+	Update NEWS, README
+
+	dxfb: same protections as in dxf
+	for fuzzing input
+
+	add old gperf support
+	needed for macOS CI target, which wants to generate dxfclasses.c
+	with a gperf 3.0
+
+	outdxfb: resolve wrong ref->obj handles
+	check against wrong ref->obj.
+	enable llvmfuzz for outdxfb.
+
+2021-03-09  Reini Urban  <rurban@cpan.org>
+
+	Prepare NEWS for 0.12.4
+
+	indxf: better dxf_skip_ws overflow protection
+	May fix oss-fuzz issue 31789, but not repro
+
+	outdxf: forgot a LAYER_CONTROL entries case
+	NULL-deref.
+	Fixes oss-fuzz issue 31873
+
+	decode: protect bit_read_BB_noadv
+	analog to bit_read_BB.
+	Fixes oss-fuzz issue 31591
+
+	encode: fix write_DD for scale
+	for INSERT. allow 1e-12 variance in equality check.
+	Fixes GH #326
+
+2021-03-09  Reini Urban  <rurban@cpan.org>
+
+	encode: check if strings zero-terminate
+	and re-calc the bitsize and size if changed.
+	generally all dwg's created with r2004+ have zero-terminated strings,
+	before not.
+
+	Now the testcase with ./rw ../test/issues/gh326/Test_DWG_2000.dwg
+	causes just 63 errors, not 187 anymore.
+	See GH #326
+
+2021-03-08  Reini Urban  <rurban@cpan.org>
+
+	encode: add LOG_POS to strings
+
+	decode: log used Section Page Map address
+
+2021-03-08  Reini Urban  <rurban@cpan.org>
+
+	decode: initialize bit_read_fixed on dat overflow
+	Fixes GH #321.
+	NULL dereference in header_variables_dxf.spec:26
+
+	Thanks to @zodf0055980 for the analysis.
+
+2021-03-08  Reini Urban  <rurban@cpan.org>
+
+	encode: avoid hdl_dat double-free
+	In case of an handle overflow, such as num_reactors.
+	Fixes oss-fuzz issue 31724.
+
+2021-03-06  Reini Urban  <rurban@cpan.org>
+
+	llvmfuzz: copy if JSON
+	because we temp. zero-terminate strings in the JSON.
+	Fixes oss-fuzz issue 31660, and kills libfuzzer performance.
+
+	more decode_3dsolid fuzzing protections
+	TF returns on overflow, but does not clear block_size.
+	Fixes oss-fuzz issue 31657
+
+	outdxf: some NULL-deref protections
+	with empty table entries.
+	Fixes oss-fuzz issue 31656
+
+	outdxf: protect stack-allocated string
+	from overflow at strlen.
+	Should fix oss-fuzz issue 31647, but not locally repro
+
+	decode: fix harmless klass->appname leak
+	fixes oss-fuzz issue 31564
+
+	More FORMAT_RC -Wformat cast warnings
+	this time for encode
+
+	more decode_3dsolid fuzzing NULL deref
+	better fix for oss-fuzz issue 31533
+	blocks_size needs to be reset also when TF overflows.
+
+	Fix some FORMAT_RC -Wformat cast warnings
+	from calc. int, and without optimization in COMMON_TABLE_FLAGS (Layer).
+	Seems problematic, but we want to be warnings free to catch real errors.
+
+	decode_preR13: more PREP_TABLE protections
+	fixes GH #325 heap overflow
+
+2021-03-06  Reini Urban  <rurban@cpan.org>
+
+	more encode bitsize fixups needed
+	all entities with a DD type have no stable bitsizes.
+	need to recalc it there too. Eg LWPOLYLINE with example_2000
+	on dwgrewrite.
+
+	also recalc size on was_bitsize_set
+
+2021-03-05  Reini Urban  <rurban@cpan.org>
+
+	encode: fix bitsize recalculation
+	not just on unknown size/bitsize (DXF), also on JSON
+	import and on rewrite across versions we need to recalc both sizes.
+	e.g. on rewrite from r2004+ we miss the is_xdic_missing bit in all objects
+	leading to an off-by-one bitsize.
+	See GH #322
+
+2021-03-03  Reini Urban  <rurban@cpan.org>
+
+	Major outdxfb bugfix: write code 0 pairs
+
+	outdxfb: fix table NULL-derefs
+	Fixes GH #324, fuzzed by @zodf0055980.
+	Analog to ascii dxf
+
+	thumbnail: more bounds-checks
+	protect from invalid header_size and BMP size.
+	Fixes GH #323, fuzzed by @zodf0055980
+
+	more decode bounds-checking
+	when the common entity already overflowed, dont parse further.
+	such as e.g. with EED overflow.
+	Fixes oss-fuzz issue 31576
+
+	acds: bounds-check invalid AcDs segment offset
+	leading to heap-overflows with corrupt/fuzzed input data.
+	Fixes GH #320, thanks to Yuan @zodf0055980 from Taiwan for fuzzing.
+
+2021-03-01  Reini Urban  <rurban@cpan.org>
+
+	decode_r2007: fail earlier with illegal system page data
+	to avoid integer overflow in rounded calcs.
+	Better fix for oss-fuzz issue 31574
+
+	geojson: protect dwg_geojson_object
+	with broken object, without parent (dwg)
+	Fixes oss-fuzz issue 31542
+
+	fix decode_3dsolid fuzzing NULL deref
+	in case of an empty encr_sat_data[] block.
+	Fixes oss-fuzz issue 31533
+
+2021-02-28  Reini Urban  <rurban@cpan.org>
+
+	llvmfuzz: set out_dat versions and opts
+	dwg_read_dxf: set the opts here.
+	needed for proper unicode conversions.
+	as in our converters.
+
+	bump copyright years to 2021
+
+2021-02-28  Reini Urban  <rurban@cpan.org>
+
+	encode: fix hdl_dat leak on errors
+	when we have to return early within dwg.spec, such as HATCH errors
+	and don't cleanup with DWG_OBJECT_END.
+
+	Fixes oss-fuzz issue 31456
+
+2021-02-28  Reini Urban  <rurban@cpan.org>
+
+	VBA_PROJECT: ignore overlarge data_size
+	which could lead to DDOS from malicious input,
+	but mostly only pleasing fuzzers.
+
+	Fixes oss-fuzz issue 31462
+
+2021-02-28  Reini Urban  <rurban@cpan.org>
+
+	llvmfuzz: fix leaks on input errors
+	See e.g. oss-fuzz issue 31422
+	we skip leak detection with libfuzzer, but not with honggfuzz.
+	note that in_dxf still leaks heavily, a known limitation.
+	so we'd need to skip leak checks with honggfuzz also, or disable in_dxf there.
+
+	fix encode_3dsolid num_blocks calculation
+	not default to 100. take the number from the block_size array.
+	Fixes oss-fuzz issue 31470 heap-buffer-overflow
+
+	encode: fix fuzzing buffer overflow
+	Fixes oss-fuzz issue 31516
+	detected by llvmfuzz
+
+2021-02-28  Reini Urban  <rurban@cpan.org>
+
+	llvmfuzz: enforce fuzzer data NULL-termination
+	this is a workaround for a libfuzzer limitation.
+	strtol or sscanf need a NULL-terminated buffer, or at least \n
+	terminated.
+	otherwise it reports buffer overflows.
+	in real-code we enforce that in our input funcs.
+
+	Fixes oss-fuzz issues 31450, 31419, 31454.
+
+2021-02-27  Reini Urban  <rurban@cpan.org>
+
+	indxf: break earlier
+
+	ensure NULL-termination in dat_read_stream
+	for sscanf, strtol and friends with asan.
+	Fixes oss-fuzz issue 31454
+
+2021-02-26  Reini Urban  <rurban@cpan.org>
+
+	dwgadd: fix pspace command
+	Closes GH #319, thanks to @chensccode
+
+	encode: protect more API_ADD_TABLE cases
+	Might fix oss-fuzz issue 31436
+
+	outdxf: wrong usage of strncat
+	fix dxf_CMC overflows.
+	detected by llvmfuzz
+
+	outdxf: more dxf_tables_write NULL ptr protections
+	might fix oss-fuzz Null-dereference READ · dxf_tables_write  issue
+
+	decode_r2007: protect from invalid repeat_count
+	signed integer overflow with invalid input.
+	fixes oss-fuzz issue 31432
+
+	encode: fix dat->chain[pvzadr] overflow
+	fixes oss-fuzz issue 31426
+
+	decode: check decode_R13_2000 invalid classes
+	fixes oss-fuzz issue 31425.
+
+	outdxf: more cquote protection
+	Fixes oss-fuzz Heap-buffer-overflow READ 1, issue 31416
+	tested with 0.12.3.4139
+	This bug was introduced with 0.10.1.3125
+
+	dwgadd/fuzz: fix wrong sscanf usage
+	need the secure variant. esp. on windows
+
+	fix some windows format warnings
+
+	fix -Wold-style-definition
+
+	minor make release-web fixups
+
 2021-02-26  Reini Urban  <rurban@cpan.org>
 
         Release 0.12.3
