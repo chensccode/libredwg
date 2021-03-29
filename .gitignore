@@ -8,6 +8,7 @@
 *.i
 .gdbinit
 .lldbinit
+/.idea/
 
 # filenames, anywhere
 Makefile.in
@@ -219,3 +220,4 @@ compile_commands.json
 /include/dwg.h.bak
 /include/dwg_api.h.bak
 /minisign.pub
+/cmake-build-debug/

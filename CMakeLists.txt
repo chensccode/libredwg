@@ -129,6 +129,9 @@ target_include_directories(redwg PUBLIC
 link_libraries(redwg -lm ${CMAKE_THREAD_LIBS_INIT})
 
 if(NOT LIBREDWG_LIBONLY)
+  # 清苏程序
+  add_executable(gesjson_std examples-tssu/geojson_std.c)
+  add_executable(ts_rewrite examples-tssu/ts_rewrite.c)
 
   add_executable(dwgread programs/dwgread.c)
   add_executable(dwg2dxf programs/dwg2dxf.c)

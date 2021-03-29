@@ -1,0 +1,84 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "1FB",
+      "properties": {
+        "SubClasses": "AcDbEntity : AcDbLine",
+        "Layer": "0",
+        "Color": 256,
+        "EntityHandle": "1FB"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates":         [
+          [ 1691.838433, 1578.622315 ],
+          [ 2508.963712, 1021.777627 ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "1FC",
+      "properties": {
+        "SubClasses": "AcDbEntity : AcDbLine",
+        "Layer": "0",
+        "Color": 256,
+        "EntityHandle": "1FC"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates":         [
+          [ 2508.963712, 1021.777627 ],
+          [ 2625.695894, 1543.637306 ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "202",
+      "properties": {
+        "SubClasses": "AcDbEntity : AcDbText",
+        "Layer": "0",
+        "Color": 256,
+        "Text": "����ok",
+        "EntityHandle": "202"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates":         [ 2508.963712, 1021.777627 ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "203",
+      "properties": {
+        "SubClasses": "AcDbEntity : AcDbText",
+        "Layer": "0",
+        "Color": 256,
+        "Text": "test",
+        "EntityHandle": "203"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates":         [ 2867.182350, 488.432185 ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": null,
+      "geometry": null
+    }
+  ],
+  "geocoding":   {
+    "creation_date": "2020-10-13",
+    "generator":     {
+      "author":       {
+        "name": "dwgread"
+      },
+      "package": "LibreDWG",
+      "version": "0.11"
+    }
+  }
+}
